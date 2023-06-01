@@ -6,6 +6,8 @@ from flask_jwt_extended import (
 )
 
 from src.auth.auth_service import AuthService
+from src.auth.auth_validators import LoginValidator, RegisterValidator
+from src.common.response_handler import ResponseHandler
 
 bcrypt = Bcrypt()
 auth_bp = Blueprint("auth", __name__, url_prefix="auth")
@@ -13,6 +15,10 @@ auth_bp = Blueprint("auth", __name__, url_prefix="auth")
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    validator = LoginValidator(request)
+    if not validator.validate():
+        return ResponseHandler.send_error(msg="Invalid input"), 400
+
     login_data = request.get_json()
 
     return AuthService.login(**login_data)
@@ -20,6 +26,10 @@ def login():
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
+    validator = RegisterValidator(request)
+    if not validator.validate():
+        return ResponseHandler.send_error(msg="Invalid input"), 400
+
     register_data = request.get_json()
 
     return AuthService.register(**register_data)
