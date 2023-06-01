@@ -1,0 +1,11 @@
+# Folders
+__pycache__/
+venv/
+build/
+dist/
+
+#Files
+.vscode
+*.spec
+*.egg-info
+.env*
