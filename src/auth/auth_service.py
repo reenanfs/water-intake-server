@@ -10,6 +10,8 @@ from flask_jwt_extended import (
 from src.user.user_service import UserService
 from src.user.user_model import User
 from src.common.response_handler import ResponseHandler
+from src.common.exceptions.custom_exceptions import UnauthorizedException
+from src.common.exceptions.custom_exceptions import ConflictException
 
 bcrypt = Bcrypt()
 
@@ -19,10 +21,7 @@ class AuthService:
     def login(email: str, password: str):
         user = UserService.get_by_email(email)
         if not user or not bcrypt.check_password_hash(user.password, password):
-            return (
-                ResponseHandler.send_error(msg="Invalid email or password"),
-                401,
-            )
+            raise UnauthorizedException("Invalid email or password.")
 
         tokens = AuthService._generate_tokens(user.id)
 
@@ -34,18 +33,15 @@ class AuthService:
             response, tokens
         )
 
-        return response_with_cookies, 200
+        return response_with_cookies
 
     @staticmethod
     def register(username: str, email: str, password: str):
         existing_user = UserService.get_by_email(email)
 
         if existing_user:
-            return (
-                ResponseHandler.send_success(
-                    msg="User with that identifier already exists."
-                ),
-                400,
+            raise ConflictException(
+                msg="User with that identifier already exists."
             )
 
         hashed_password = bcrypt.generate_password_hash(password).decode(
@@ -72,7 +68,7 @@ class AuthService:
             response, tokens
         )
 
-        return response_with_cookies, 201
+        return response_with_cookies
 
     @staticmethod
     def logout(user_id: int):
@@ -82,7 +78,7 @@ class AuthService:
 
         response = ResponseHandler.send_success(msg="Successfully logged out")
         unset_jwt_cookies(response)
-        return response, 200
+        return response
 
     @staticmethod
     def profile(user_id: int):
@@ -91,11 +87,8 @@ class AuthService:
         if not user:
             return ResponseHandler.send_error(msg="User not found"), 404
 
-        return (
-            ResponseHandler.send_success(
-                msg="User successfully fetched", data=user
-            ),
-            200,
+        return ResponseHandler.send_success(
+            msg="User successfully fetched", data=user
         )
 
     @staticmethod
@@ -117,7 +110,7 @@ class AuthService:
             response, tokens
         )
 
-        return response_with_cookies, 200
+        return response_with_cookies
 
     def _generate_tokens(self, user_id: int) -> dict[str, str]:
         access_token = create_access_token(sub=user_id)

@@ -1,5 +1,6 @@
 class ResponseHandler:
-    def send_success(self, data=None, msg=None):
+    @staticmethod
+    def send_success(data=None, msg=None):
         response = {
             "ok": True,
             "data": data,
@@ -7,7 +8,8 @@ class ResponseHandler:
         }
         return response
 
-    def send_error(self, data=None, msg=None):
+    @staticmethod
+    def send_error(data: dict | list[dict] = None, msg: str = None):
         response = {
             "ok": True,
             "data": data,

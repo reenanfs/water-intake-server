@@ -12,3 +12,4 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = os.environ.get("POSTGRES_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_TOKEN_LOCATION = os.environ.get("JWT_TOKEN_LOCATION")

@@ -1,14 +1,19 @@
-from flask_inputs import Inputs
-from wtforms.validators import DataRequired, Email, Length
-from wtforms.fields import StringField, PasswordField
+login_schema = {
+    "type": "object",
+    "properties": {
+        "email": {"type": "string", "format": "email"},
+        "password": {"type": "string", "minLength": 6},
+    },
+    "required": ["email", "password"],
+}
 
 
-class LoginValidator(Inputs):
-    email = StringField(validators=[DataRequired(), Email()])
-    password = PasswordField(validators=[DataRequired(), Length(min=6)])
-
-
-class RegisterValidator(Inputs):
-    username = StringField(validators=[DataRequired()])
-    email = StringField(validators=[DataRequired(), Email()])
-    password = PasswordField(validators=[DataRequired(), Length(min=6)])
+register_schema = {
+    "type": "object",
+    "properties": {
+        "username": {"type": "string"},
+        "email": {"type": "string", "format": "email"},
+        "password": {"type": "string", "minLength": 6},
+    },
+    "required": ["username", "email", "password"],
+}
