@@ -1,48 +1,45 @@
 from src.user.user_model import User
 from src.database.db import db
+from src.common.exceptions.custom_exceptions import (
+    NotFoundException,
+)
 
 
 class UserService:
     @staticmethod
     def get_users() -> list[User]:
-        users = User.query.all()
-        serialized_users = [user.to_dict() for user in users]
-        return serialized_users
+        return User.query.all()
 
     @staticmethod
     def get_by_email(email: str) -> User:
-        user = User.query.filter_by(email=email).one_or_none()
-        if not user:
-            return None
-        serialized_user = user.to_dict()
-        return serialized_user
+        return User.query.filter_by(email=email).one_or_none()
 
     @staticmethod
     def get_by_id(id: int) -> User:
-        user = User.query.filter_by(id=id).one_or_none()
-        if not user:
-            return None
-        serialized_user = user.to_dict()
-        return serialized_user
+        return User.query.filter_by(id=id).one_or_none()
 
     @staticmethod
     def create_user(user_data: dict) -> User:
         user = User(**user_data)
         db.session.add(user)
         db.session.commit()
-
-        serialized_user = user.to_dict()
-        return serialized_user
+        return user
 
     @staticmethod
-    def update_user(user: User, user_data: dict) -> User:
-        deserialized_user = User(**user)
+    def update_user(user_id: int, user_data: dict) -> User:
+        user = UserService.get_by_id(user_id)
 
-        for key, value in user_data.items():
-            if hasattr(deserialized_user, key):
-                setattr(deserialized_user, key, value)
+        if not user:
+            raise NotFoundException("User not found")
+
+        allowed_props = [prop.key for prop in User.__table__.columns]
+        invalid_props = set(user_data.keys()) - set(allowed_props)
+        if invalid_props:
+            raise ValueError(f'Invalid properties: {", ".join(invalid_props)}')
+
+        for prop, value in user_data.items():
+            setattr(user, prop, value)
 
         db.session.commit()
 
-        serialized_user = deserialized_user.to_dict()
-        return serialized_user
+        return user

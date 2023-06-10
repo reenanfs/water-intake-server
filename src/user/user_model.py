@@ -1,5 +1,7 @@
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy import Enum as EnumSQL
 from src.database.db import db
+from src.common.constants.activity_levels import ActivityLevels
 
 
 class User(db.Model, SerializerMixin):
@@ -9,9 +11,10 @@ class User(db.Model, SerializerMixin):
     username = db.Column(db.String, nullable=False, unique=True)
     email = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
-    weight = db.Column(db.String, nullable=True)
-    activity_level = db.Column(db.String, nullable=True)
     refresh_token = db.Column(db.String, nullable=True)
+    weight = db.Column(db.String, nullable=True)
+    activity_level = db.Column(EnumSQL(ActivityLevels), nullable=True)
+    target_water_amount = db.Column(db.Float, nullable=True)
     water_intakes = db.relationship("WaterIntake", backref="user", lazy=True)
 
     def __init__(
@@ -19,9 +22,9 @@ class User(db.Model, SerializerMixin):
         username: str,
         email: str,
         password: str,
-        refresh_token: str,
+        refresh_token: str = None,
         weight: float = None,
-        activity_level: str = None,
+        activity_level: ActivityLevels = None,
     ):
         self.username = (username,)
         self.email = (email,)

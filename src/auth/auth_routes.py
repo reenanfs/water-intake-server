@@ -6,7 +6,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-
+from src.common.response_handler import ResponseHandler
 from src.auth.auth_service import AuthService
 from src.auth.auth_validators import login_schema, register_schema
 
@@ -20,7 +20,17 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 def login():
     login_data = request.json
 
-    return AuthService.login(**login_data), 200
+    access_token, refresh_token, user = AuthService.login(**login_data)
+
+    return (
+        ResponseHandler.send_set_cookies_success(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            msg="Login successful",
+            data=user.to_dict(),
+        ),
+        200,
+    )
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -28,7 +38,19 @@ def login():
 def register():
     register_data = request.json
 
-    return AuthService.register(**register_data), 201
+    access_token, refresh_token, new_user = AuthService.register(
+        **register_data
+    )
+
+    return (
+        ResponseHandler.send_set_cookies_success(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            msg="User created successfully.",
+            data={"user": new_user.to_dict()},
+        ),
+        201,
+    )
 
 
 @auth_bp.route("/logout", methods=["POST"])
@@ -36,7 +58,14 @@ def register():
 def logout():
     user_id = get_jwt_identity()
 
-    return AuthService.logout(user_id), 200
+    AuthService.logout(user_id)
+
+    return (
+        ResponseHandler.send_unset_cookies_success(
+            msg="Successfully logged out"
+        ),
+        200,
+    )
 
 
 @auth_bp.route("/profile", methods=["GET"])
@@ -44,7 +73,14 @@ def logout():
 def profile():
     user_id = get_jwt_identity()
 
-    return AuthService.profile(user_id), 200
+    user = AuthService.profile(user_id)
+
+    return (
+        ResponseHandler.send_success(
+            msg="User successfully fetched", data=user
+        ),
+        200,
+    )
 
 
 @auth_bp.route("/refresh", endpoint="refresh", methods=["POST"])
@@ -53,4 +89,13 @@ def refresh():
     user_id = get_jwt_identity()
     refresh_token = request.cookies.get("refresh_token")
 
-    return AuthService.profile(user_id, refresh_token), 200
+    access_token, refresh_token = AuthService.refresh(user_id, refresh_token)
+
+    return (
+        ResponseHandler.send_set_cookies_success(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            msg="Token refreshed",
+        ),
+        200,
+    )
