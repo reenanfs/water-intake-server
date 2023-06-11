@@ -5,7 +5,6 @@ from src.common.constants.activity_levels import (
     ActivityLevels,
     ACTIVITY_LEVELS,
 )
-from src.common.response_handler import ResponseHandler
 
 
 class WaterIntakeService:
@@ -29,7 +28,4 @@ class WaterIntakeService:
             * os.environ.get("BASE_INTAKE")
             * ACTIVITY_LEVELS[activity_level]
         )
-        return ResponseHandler.send_success(
-            data={"tager_intake_amount": target_intake_amount},
-            msg="Taget intake calculated successfully.",
-        )
+        return target_intake_amount
