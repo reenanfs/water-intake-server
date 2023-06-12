@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from src.water_intakes.water_intakes_model import WaterIntake
 from src.database.db import db
@@ -13,14 +14,24 @@ from src.common.exceptions.custom_exceptions import (
 
 class WaterIntakesService:
     @staticmethod
-    def get_water_intakes(user_id: int) -> list[WaterIntake]:
+    def get_water_intakes(user_id: int, date: str = None) -> list[WaterIntake]:
         user = UsersService.get_by_id(user_id)
 
         if not user:
             raise BadRequestException("User does not exist.")
 
-        water_intakes = WaterIntake.query.filter_by(user_id=user_id).all()
-        print("======", water_intakes)
+        query = WaterIntake.query.filter_by(user_id=user_id)
+
+        if date:
+            date = datetime.strptime(date, "%Y-%m-%d").date()
+            start_date = datetime.combine(date, datetime.min.time())
+            end_date = datetime.combine(date, datetime.max.time())
+
+            query = query.filter(
+                WaterIntake.created_at.between(start_date, end_date)
+            )
+
+        water_intakes = query.all()
 
         return water_intakes
 

@@ -20,7 +20,11 @@ water_intakes_bp = Blueprint(
 @water_intakes_bp.route("/<user_id>", methods=["GET"])
 @jwt_required()
 def get_water_intake(user_id):
-    water_intakes = WaterIntakesService.get_water_intakes(user_id=user_id)
+    date = request.args.get("date")
+
+    water_intakes = WaterIntakesService.get_water_intakes(
+        user_id=user_id, date=date
+    )
 
     serialized_water_intakes = [
         water_intake.to_dict() for water_intake in water_intakes
