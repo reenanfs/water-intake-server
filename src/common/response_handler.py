@@ -28,10 +28,12 @@ class ResponseHandler:
             "msg": msg,
         }
 
-        make_response(response)
+        response = make_response(response)
 
         response_with_cookies = AuthService.store_tokens_in_cookies(
-            access_token=access_token, refresh_token=refresh_token
+            response=response,
+            access_token=access_token,
+            refresh_token=refresh_token,
         )
 
         return response_with_cookies
@@ -47,7 +49,7 @@ class ResponseHandler:
             "msg": msg,
         }
 
-        make_response(response)
+        response = make_response(response)
 
         unset_jwt_cookies(response)
 

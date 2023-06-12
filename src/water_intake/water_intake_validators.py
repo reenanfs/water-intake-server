@@ -8,7 +8,7 @@ add_water_intake_schema = {
     "required": ["amount"],
 }
 
-get_target_intake_amount_schema = {
+calculate_target_schema = {
     "type": "object",
     "properties": {
         "weight": {"type": "number"},

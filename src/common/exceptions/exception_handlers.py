@@ -3,8 +3,9 @@ from jsonschema import ValidationError
 
 
 def bad_request_exception(error):
-    if isinstance(error.description, ValidationError):
-        # handle other "flask_expects_json"-errors
+    if hasattr(error, "description") and isinstance(
+        error.description, ValidationError
+    ):
         return (
             ResponseHandler.send_error(
                 msg=str(error.description.message),

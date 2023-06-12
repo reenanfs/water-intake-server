@@ -1,59 +1,66 @@
 from flask import Blueprint, request
 from flask_jwt_extended import (
     jwt_required,
-    get_jwt_identity,
 )
 from flask_expects_json import expects_json
 
 from src.water_intake.water_intake_service import WaterIntakeService
 from src.water_intake.water_intake_validators import (
     add_water_intake_schema,
-    get_target_intake_amount_schema,
+    calculate_target_schema,
 )
 from src.common.response_handler import ResponseHandler
 
 
 water_intake_bp = Blueprint(
-    "water_intake", __name__, url_prefix="/waterintake"
+    "water_intakes", __name__, url_prefix="/water-intakes"
 )
 
 
-@water_intake_bp.route("/get-water-intakes", methods=["GET"])
+@water_intake_bp.route("/<user_id>", methods=["GET"])
 @jwt_required()
-def get_water_intake():
-    user_id = get_jwt_identity()
+def get_water_intake(user_id):
     water_intakes = WaterIntakeService.get_water_intakes(user_id=user_id)
+
+    serialized_water_intakes = [
+        water_intake.to_dict() for water_intake in water_intakes
+    ]
+
     return (
         ResponseHandler.send_success(
-            data=water_intakes, msg="Water Intakes sucessfully retrieved."
+            data=serialized_water_intakes,
+            msg="Water Intakes sucessfully retrieved.",
         ),
         200,
     )
 
 
-@water_intake_bp.route("/add-water-intake", methods=["POST"])
+@water_intake_bp.route("/<user_id>", methods=["POST"])
 @jwt_required()
 @expects_json(add_water_intake_schema)
-def add_water_intake():
-    user_id = get_jwt_identity()
+def add_water_intake(user_id):
     amount = request.json["amount"]
+
     water_intake = WaterIntakeService.add_water_intake(
         user_id=user_id, amount=amount
     )
+
     return (
         ResponseHandler.send_success(
-            data=water_intake, msg="Water Intakes sucessfully retrieved."
+            data=water_intake.to_dict(),
+            msg="Water intake successfully added.",
         ),
         201,
     )
 
 
-@water_intake_bp.route("/get-target_intake_amount", methods=["GET"])
+@water_intake_bp.route("/calculate-target", methods=["POST"])
 @jwt_required()
-@expects_json(get_target_intake_amount_schema)
-def get_target_intake_amount():
+@expects_json(calculate_target_schema)
+def calculate_target():
     request_data = request.json
-    target_intake_amount = WaterIntakeService(**request_data)
+
+    target_intake_amount = WaterIntakeService.calculate_target(**request_data)
 
     return (
         ResponseHandler.send_success(

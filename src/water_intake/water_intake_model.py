@@ -5,6 +5,8 @@ from src.database.db import db
 class WaterIntake(db.Model, SerializerMixin):
     __tablename__ = "water_intake"
 
+    serialize_rules = ("-user",)
+
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.TIMESTAMP, default=db.func.now())

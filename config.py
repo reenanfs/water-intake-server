@@ -13,3 +13,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get("POSTGRES_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_COOKIE_CSRF_PROTECT = False

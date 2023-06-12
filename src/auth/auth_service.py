@@ -8,9 +8,12 @@ from flask_jwt_extended import (
 
 from src.user.user_service import UserService
 from src.user.user_model import User
-from src.common.response_handler import ResponseHandler
-from src.common.exceptions.custom_exceptions import UnauthorizedException
-from src.common.exceptions.custom_exceptions import ConflictException
+from src.common.exceptions.custom_exceptions import (
+    UnauthorizedException,
+    ConflictException,
+    NotFoundException,
+    BadRequestException,
+)
 
 bcrypt = Bcrypt()
 
@@ -19,10 +22,15 @@ class AuthService:
     @staticmethod
     def login(email: str, password: str) -> tuple[str, str, User]:
         user = UserService.get_by_email(email)
+        print("====================================")
+        # print(user)
+        print("got here")
         if not user or not bcrypt.check_password_hash(user.password, password):
             raise UnauthorizedException("Invalid email or password.")
 
         access_token, refresh_token = AuthService._generate_tokens(user.id)
+
+        AuthService._update_user_refresh_token(user.id, refresh_token)
 
         return access_token, refresh_token, user
 
@@ -55,16 +63,16 @@ class AuthService:
 
     @staticmethod
     def logout(user_id: int):
-        user = UserService.get_by_id(user_id)
-
-        UserService.update_user(user, {"refresh_token": None})
+        UserService.update_user(
+            user_id=user_id, user_data={"refresh_token": None}
+        )
 
     @staticmethod
     def profile(user_id: int) -> User:
         user = UserService.get_by_id(user_id)
 
         if not user:
-            return ResponseHandler.send_error(msg="User not found"), 404
+            raise NotFoundException("User not found")
 
         return user
 
@@ -72,14 +80,17 @@ class AuthService:
     def refresh(user_id: int, refresh_token: str) -> tuple[str, str]:
         user = UserService.get_by_id(user_id)
 
-        if not bcrypt.check_password_hash(
-            refresh_token.encode("utf-8"), user.refresh_token.encode("utf-8")
-        ):
-            return ResponseHandler.send_error("Invalid refresh token"), 401
+        if not user.refresh_token:
+            raise BadRequestException("User has no stored token.")
+
+        if not bcrypt.check_password_hash(user.refresh_token, refresh_token):
+            raise UnauthorizedException("Invalid refresh token")
 
         access_token, refresh_token = AuthService._generate_tokens(user.id)
 
-        UserService.update_user(user, {"refresh_token": refresh_token})
+        AuthService._update_user_refresh_token(
+            user_id=user_id, refresh_token=refresh_token
+        )
 
         return access_token, refresh_token
 

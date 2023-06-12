@@ -7,9 +7,12 @@ from src.common.constants.activity_levels import ActivityLevels
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
 
+    # Exclude nested model of the same class to avoid max recursion error
+    serialize_rules = ("-water_intakes",)
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False, unique=True)
-    email = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
     refresh_token = db.Column(db.String, nullable=True)
     weight = db.Column(db.String, nullable=True)
