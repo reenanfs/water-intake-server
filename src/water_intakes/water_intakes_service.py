@@ -14,7 +14,9 @@ from src.common.exceptions.custom_exceptions import (
 
 class WaterIntakesService:
     @staticmethod
-    def get_water_intakes(user_id: int, date: str = None) -> list[WaterIntake]:
+    def get_water_intakes(
+        user_id: int, start_date: str = None, end_date: str = None
+    ) -> list[WaterIntake]:
         user = UsersService.get_by_id(user_id)
 
         if not user:
@@ -22,14 +24,15 @@ class WaterIntakesService:
 
         query = WaterIntake.query.filter_by(user_id=user_id)
 
-        if date:
-            date = datetime.strptime(date, "%Y-%m-%d").date()
-            start_date = datetime.combine(date, datetime.min.time())
-            end_date = datetime.combine(date, datetime.max.time())
+        if start_date:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            start_date = datetime.combine(start_date, datetime.min.time())
+            query = query.filter(WaterIntake.created_at > start_date)
 
-            query = query.filter(
-                WaterIntake.created_at.between(start_date, end_date)
-            )
+        if end_date:
+            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            end_date = datetime.combine(end_date, datetime.max.time())
+            query = query.filter(WaterIntake.created_at <= end_date)
 
         water_intakes = query.all()
 
