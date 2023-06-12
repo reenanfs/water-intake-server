@@ -1,7 +1,5 @@
 from flask import Blueprint, request
-from flask_jwt_extended import (
-    jwt_required,
-)
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_expects_json import expects_json
 
 from src.water_intakes.water_intakes_service import WaterIntakesService
@@ -17,9 +15,10 @@ water_intakes_bp = Blueprint(
 )
 
 
-@water_intakes_bp.route("/<user_id>", methods=["GET"])
+@water_intakes_bp.route("/", methods=["GET"])
 @jwt_required()
-def get_water_intake(user_id):
+def get_water_intake():
+    user_id = get_jwt_identity()
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
 
@@ -40,10 +39,11 @@ def get_water_intake(user_id):
     )
 
 
-@water_intakes_bp.route("/<user_id>", methods=["POST"])
+@water_intakes_bp.route("/", methods=["POST"])
 @jwt_required()
 @expects_json(add_water_intake_schema)
-def add_water_intake(user_id):
+def add_water_intake():
+    user_id = get_jwt_identity()
     amount = request.json["amount"]
 
     water_intake = WaterIntakesService.add_water_intake(
