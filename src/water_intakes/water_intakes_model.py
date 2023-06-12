@@ -3,7 +3,7 @@ from src.database.db import db
 
 
 class WaterIntake(db.Model, SerializerMixin):
-    __tablename__ = "water_intake"
+    __tablename__ = "water_intakes"
 
     serialize_rules = ("-user",)
 

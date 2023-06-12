@@ -1,8 +1,8 @@
 import os
 
-from src.water_intake.water_intake_model import WaterIntake
+from src.water_intakes.water_intakes_model import WaterIntake
 from src.database.db import db
-from src.user.user_service import UserService
+from src.users.users_service import UsersService
 from src.common.constants.activity_levels import (
     ActivityLevels,
 )
@@ -11,25 +11,22 @@ from src.common.exceptions.custom_exceptions import (
 )
 
 
-class WaterIntakeService:
+class WaterIntakesService:
     @staticmethod
-    def get_water_intakes(user_id: str) -> list[WaterIntake]:
-        user = UserService.get_by_id(user_id)
+    def get_water_intakes(user_id: int) -> list[WaterIntake]:
+        user = UsersService.get_by_id(user_id)
 
         if not user:
             raise BadRequestException("User does not exist.")
-        print(user_id)
+
         water_intakes = WaterIntake.query.filter_by(user_id=user_id).all()
+        print("======", water_intakes)
 
-        for water_intake in water_intakes:
-            print(water_intake)
-
-        print("oi")
         return water_intakes
 
     @staticmethod
-    def add_water_intake(user_id: str, amount: float) -> WaterIntake:
-        user = UserService.get_by_id(user_id)
+    def add_water_intake(user_id: int, amount: float) -> WaterIntake:
+        user = UsersService.get_by_id(user_id)
 
         if not user:
             raise BadRequestException("User does not exist.")

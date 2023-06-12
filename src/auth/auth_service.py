@@ -6,8 +6,8 @@ from flask_jwt_extended import (
     set_refresh_cookies,
 )
 
-from src.user.user_service import UserService
-from src.user.user_model import User
+from src.users.users_service import UsersService
+from src.users.users_model import User
 from src.common.exceptions.custom_exceptions import (
     UnauthorizedException,
     ConflictException,
@@ -21,10 +21,8 @@ bcrypt = Bcrypt()
 class AuthService:
     @staticmethod
     def login(email: str, password: str) -> tuple[str, str, User]:
-        user = UserService.get_by_email(email)
-        print("====================================")
-        # print(user)
-        print("got here")
+        user = UsersService.get_by_email(email)
+
         if not user or not bcrypt.check_password_hash(user.password, password):
             raise UnauthorizedException("Invalid email or password.")
 
@@ -38,7 +36,7 @@ class AuthService:
     def register(
         username: str, email: str, password: str
     ) -> tuple[str, str, User]:
-        existing_user = UserService.get_by_email(email)
+        existing_user = UsersService.get_by_email(email)
 
         if existing_user:
             raise ConflictException(msg="Email already in use.")
@@ -53,7 +51,7 @@ class AuthService:
             "username": username,
         }
 
-        new_user = UserService.create_user(user_params)
+        new_user = UsersService.create_user(user_params)
 
         access_token, refresh_token = AuthService._generate_tokens(new_user.id)
 
@@ -63,13 +61,13 @@ class AuthService:
 
     @staticmethod
     def logout(user_id: int):
-        UserService.update_user(
+        UsersService.update_user(
             user_id=user_id, user_data={"refresh_token": None}
         )
 
     @staticmethod
     def profile(user_id: int) -> User:
-        user = UserService.get_by_id(user_id)
+        user = UsersService.get_by_id(user_id)
 
         if not user:
             raise NotFoundException("User not found")
@@ -78,7 +76,7 @@ class AuthService:
 
     @staticmethod
     def refresh(user_id: int, refresh_token: str) -> tuple[str, str]:
-        user = UserService.get_by_id(user_id)
+        user = UsersService.get_by_id(user_id)
 
         if not user.refresh_token:
             raise BadRequestException("User has no stored token.")
@@ -124,6 +122,6 @@ class AuthService:
         hashed_refresh_token = bcrypt.generate_password_hash(
             refresh_token
         ).decode("utf-8")
-        UserService.update_user(
+        UsersService.update_user(
             user_id, {"refresh_token": hashed_refresh_token}
         )

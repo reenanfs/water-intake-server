@@ -27,10 +27,12 @@ def create_app():
 
     # Register blueprints
     from src.auth.auth_routes import auth_bp
-    from src.water_intake.water_intake_routes import water_intake_bp
+    from src.water_intakes.water_intakes_routes import water_intakes_bp
+    from src.users.users_routes import users_bp
 
     app.register_blueprint(auth_bp)
-    app.register_blueprint(water_intake_bp)
+    app.register_blueprint(users_bp)
+    app.register_blueprint(water_intakes_bp)
 
     # Register error handlers
     app.register_error_handler(400, bad_request_exception)
