@@ -19,7 +19,7 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 @expects_json(register_schema, check_formats=True)
 def register():
     register_data = request.json
-
+    print("===========================================")
     access_token, refresh_token, new_user = AuthService.register(
         **register_data
     )
@@ -41,7 +41,6 @@ def login():
     login_data = request.json
 
     access_token, refresh_token, user = AuthService.login(**login_data)
-
     return (
         ResponseHandler.send_set_cookies_success(
             access_token=access_token,

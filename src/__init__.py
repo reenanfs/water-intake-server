@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import (
     JWTManager,
 )
@@ -23,6 +24,7 @@ from src.common.exceptions.exception_handlers import (
 def create_app():
     app = Flask(__name__)
 
+    CORS(app, supports_credentials=True)
     app.config.from_object(Config)
 
     # Register blueprints
