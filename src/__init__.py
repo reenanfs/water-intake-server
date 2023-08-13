@@ -1,10 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
 
-# from flask_jwt_extended import (
-#     JWTManager,
-# )
-
 from config import Config
 from src.database.db import init_db
 from src.common.exceptions.custom_exceptions import (
