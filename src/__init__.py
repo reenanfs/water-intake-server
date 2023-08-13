@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_jwt_extended import (
-    JWTManager,
-)
+
+# from flask_jwt_extended import (
+#     JWTManager,
+# )
 
 from config import Config
 from src.database.db import init_db
@@ -19,6 +20,7 @@ from src.common.exceptions.exception_handlers import (
     bad_request_exception,
     not_found_exception,
 )
+from src.common.jwt_utils import jwt
 
 
 def create_app():
@@ -39,12 +41,13 @@ def create_app():
     # Register error handlers
     app.register_error_handler(400, bad_request_exception)
     app.register_error_handler(BadRequestException, bad_request_exception)
-    app.register_error_handler(NotFoundException, not_found_exception)
     app.register_error_handler(UnauthorizedException, unauthorized_exception)
+    app.register_error_handler(NotFoundException, not_found_exception)
     app.register_error_handler(ConflictException, conflict_exception)
     app.register_error_handler(Exception, server_exception)
 
     init_db(app)
-    JWTManager(app)
+    # JWTManager(app)
+    jwt.init_app(app)
 
     return app
