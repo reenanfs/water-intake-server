@@ -62,4 +62,5 @@ class ResponseHandler:
             "data": data,
             "msg": msg,
         }
+        print("hmm")
         return make_response(response)

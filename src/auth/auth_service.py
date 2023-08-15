@@ -41,6 +41,11 @@ class AuthService:
         if existing_user:
             raise ConflictException(msg="Email already in use.")
 
+        existing_user = UsersService.get_by_username(username)
+
+        if existing_user:
+            raise ConflictException(msg="Username already in use.")
+
         hashed_password = bcrypt.generate_password_hash(password).decode(
             "utf-8"
         )
