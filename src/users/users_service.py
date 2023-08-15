@@ -16,6 +16,10 @@ class UsersService:
         return User.query.filter_by(email=email).one_or_none()
 
     @staticmethod
+    def get_by_username(username: str) -> User:
+        return User.query.filter_by(username=username).one_or_none()
+
+    @staticmethod
     def get_by_id(id: int) -> User:
         return User.query.filter_by(id=id).one_or_none()
 

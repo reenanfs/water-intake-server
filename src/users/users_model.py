@@ -8,6 +8,13 @@ class User(db.Model, SerializerMixin):
     __tablename__ = "users"
 
     # Exclude nested model of the same class to avoid max recursion error
+    serialize_only = (
+        "username",
+        "email",
+        "weight",
+        "activity_level",
+        "target_water_amount",
+    )
     serialize_rules = ("-water_intakes",)
 
     id = db.Column(db.Integer, primary_key=True)

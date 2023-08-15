@@ -19,7 +19,6 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 @expects_json(register_schema, check_formats=True)
 def register():
     register_data = request.json
-
     access_token, refresh_token, new_user = AuthService.register(
         **register_data
     )
@@ -29,7 +28,11 @@ def register():
             access_token=access_token,
             refresh_token=refresh_token,
             msg="User created successfully.",
-            data={"user": new_user.to_dict()},
+            data={
+                "user": new_user.to_dict(),
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            },
         ),
         201,
     )
@@ -41,13 +44,16 @@ def login():
     login_data = request.json
 
     access_token, refresh_token, user = AuthService.login(**login_data)
-
     return (
         ResponseHandler.send_set_cookies_success(
             access_token=access_token,
             refresh_token=refresh_token,
             msg="Login successful",
-            data=user.to_dict(),
+            data={
+                "user": user.to_dict(),
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            },
         ),
         200,
     )
@@ -75,9 +81,17 @@ def profile():
 
     user = AuthService.profile(user_id)
 
+    access_token = request.cookies.get("access_token_cookie")
+    refresh_token = request.cookies.get("refresh_token_cookie")
+
     return (
         ResponseHandler.send_success(
-            msg="User successfully fetched", data=user.to_dict()
+            msg="User successfully fetched",
+            data={
+                "user": user.to_dict(),
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            },
         ),
         200,
     )
