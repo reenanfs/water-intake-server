@@ -22,7 +22,7 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
     refresh_token = db.Column(db.String, nullable=True)
-    weight = db.Column(db.String, nullable=True)
+    weight = db.Column(db.Float, nullable=True)
     activity_level = db.Column(EnumSQL(ActivityLevels), nullable=True)
     target_water_amount = db.Column(db.Float, nullable=True)
     water_intakes = db.relationship("WaterIntake", backref="user", lazy=True)
