@@ -43,5 +43,13 @@ class User(db.Model, SerializerMixin):
         self.weight = (weight,)
         self.activity_level = activity_level
 
+    def to_dict(self):
+        user_dict = super().to_dict()
+
+        if self.activity_level:
+            user_dict["activity_level"] = self.activity_level.name
+
+        return user_dict
+
     def __repr__(self):
         return f"{self.to_dict()}"

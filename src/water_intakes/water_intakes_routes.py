@@ -45,7 +45,6 @@ def get_water_intake():
 def add_water_intake():
     user_id = get_jwt_identity()
     amount = request.json["amount"]
-
     water_intake = WaterIntakesService.add_water_intake(
         user_id=user_id, amount=amount
     )
